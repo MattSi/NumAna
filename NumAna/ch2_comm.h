@@ -17,6 +17,7 @@ VectorXd gauss_eliminate(MatrixXd A, VectorXd b);
 */
 void lu(MatrixXd A, MatrixXd& L, MatrixXd& U);
 
-
+VectorXd jacobi_iteration(MatrixXd A, VectorXd b);
+VectorXd gauss_seidel(MatrixXd A, VectorXd b);
 
 void ch2_driver();

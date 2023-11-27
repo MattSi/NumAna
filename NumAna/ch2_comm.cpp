@@ -84,6 +84,92 @@ void lu(MatrixXd A, MatrixXd& L, MatrixXd& U)
     return ;
 }
 
+VectorXd jacobi_iteration(MatrixXd A, VectorXd b)
+{
+    Eigen::IOFormat CleanFmt(15, 0, ", ", "\n", "[", "]");
+    MatrixXd D = MatrixXd::Zero(A.rows(), A.cols());
+    MatrixXd L = MatrixXd::Zero(A.rows(), A.cols());
+    MatrixXd U = MatrixXd::Zero(A.rows(), A.cols());
+    VectorXd guess_solution = VectorXd::Ones(b.rows());
+
+    // Initialize Diagonal, Lower Triangular, Upper Triangular
+    for (int i = 0; i < A.rows(); i++) {
+        for (int j = 0; j < A.cols(); j++) {
+            if (i < j) {
+                L(i, j) = A(i, j);
+            }
+            else if (i == j) {
+                D(i, j) = A(i, j);
+            }
+            else {
+                U(i, j) = A(i, j);
+            }
+        }
+    }
+
+    MatrixXd T = (-1) * D.inverse() * (L + U);
+    MatrixXd C = D.inverse() * b;
+
+    // First guess is ones;
+    
+
+    for (int i=1;;i++) {
+        VectorXd last_guess = guess_solution;
+        std::cout << "Iteration: " << i<<"  Current Solution: \n"<<last_guess.format(CleanFmt) << std::endl;
+        guess_solution = T * last_guess + C;
+        VectorXd delta = b - A * guess_solution;
+        if (delta.norm() < 1e-9) {
+            // We get the right answer
+            break;
+        }
+        
+    }
+
+    return guess_solution;
+}
+
+VectorXd gauss_seidel(MatrixXd A, VectorXd b)
+{
+    Eigen::IOFormat CleanFmt(15, 0, ", ", "\n", "[", "]");
+    MatrixXd D = MatrixXd::Zero(A.rows(), A.cols());
+    MatrixXd L = MatrixXd::Zero(A.rows(), A.cols());
+    MatrixXd U = MatrixXd::Zero(A.rows(), A.cols());
+    VectorXd guess_solution = VectorXd::Ones(b.rows());
+
+    // Initialize Diagonal, Lower Triangular, Upper Triangular
+    for (int i = 0; i < A.rows(); i++) {
+        for (int j = 0; j < A.cols(); j++) {
+            if (i < j) {
+                L(i, j) = A(i, j);
+            }
+            else if (i == j) {
+                D(i, j) = A(i, j);
+            }
+            else {
+                U(i, j) = A(i, j);
+            }
+        }
+    }
+
+    MatrixXd T = (-1) * (D + L).inverse() * U;
+    MatrixXd C = (D + L).inverse() * b;
+
+    // First guess is ones;
+    for (int i = 1;; i++) {
+        VectorXd last_guess = guess_solution;
+        std::cout << "Iteration: " << i << "  Current Solution: \n" << last_guess.format(CleanFmt) << std::endl;
+        guess_solution = T * last_guess + C;
+        VectorXd delta = b - A * guess_solution;
+        if (delta.norm() < 1e-9) {
+            // We get the right answer
+            break;
+        }
+
+    }
+
+    return guess_solution;
+}
+
 VectorXd back_substitution(MatrixXd A, VectorXd b) {
     VectorXd root(A.rows(), 1);
     root.fill(0.0);
@@ -125,7 +211,7 @@ VectorXd forward_substitution(MatrixXd A, VectorXd b) {
 
 void ch2_driver()
 {
-    Eigen::IOFormat CleanFmt(6, 0, ", ", "\n", "[", "]");
+    Eigen::IOFormat CleanFmt(9, 0, ", ", "\n", "[", "]");
     std::string sep = "\n----------------------------------------\n";
     VectorXd b(5, 1);
     MatrixXd A(5, 5);
@@ -182,4 +268,20 @@ void ch2_driver()
     std::cout << "U = \n" << u2.format(CleanFmt) << std::endl;
     std::cout << "Solution vector =\n" << x2.format(CleanFmt) << std::endl;
     std::cout << "Delta: " << delta2.norm() << sep << std::endl;
+
+
+
+    /*VectorXd b2(4, 1);
+    MatrixXd A2(4, 4);
+    A2 << 7.2, 2.3, -4.4, 0.5,
+        1.3, 6.3, -3.5, 2.8,
+        5.6, 0.9, 8.1, -1.3,
+        1.5, 0.4, 3.7, 5.9;
+    b2 << 15.1, 1.8, 16.6, 36.9;*/
+    solution2 = gauss_seidel(A2, b2);
+    delta2 = A2 * solution2 - b2;
+    std::cout << "Solution of equation Ax=b: (Jacobi Iteration)\nA =\n" << A2.format(CleanFmt) << "\nb =\n" << b2.format(CleanFmt) << std::endl;
+    std::cout << "Solution vector =\n" << solution2.format(CleanFmt) << std::endl;
+    std::cout << "Delta: " << delta2.norm() << sep << std::endl;
+
 }
