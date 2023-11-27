@@ -24,6 +24,9 @@
     <ClCompile Include="ch1_comm.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ch2_comm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ch0_ex4.h">
