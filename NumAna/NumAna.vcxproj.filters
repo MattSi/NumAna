@@ -27,6 +27,12 @@
     <ClCompile Include="ch2_comm.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ch3_comm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ch5_comm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ch0_ex4.h">
@@ -36,6 +42,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ch2_comm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ch3_comm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ch5_comm.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

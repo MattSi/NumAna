@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include "ch2_comm.h"
 
 
@@ -84,9 +85,9 @@ void lu(MatrixXd A, MatrixXd& L, MatrixXd& U)
     return ;
 }
 
-VectorXd jacobi_iteration(MatrixXd A, VectorXd b)
+VectorXd jacobi_iteration(MatrixXd A, VectorXd b, bool disp_guess)
 {
-    Eigen::IOFormat CleanFmt(15, 0, ", ", "\n", "[", "]");
+    Eigen::IOFormat VectorRowFmt(15, 0, ", ", " ", "", "", "[", "]");
     MatrixXd D = MatrixXd::Zero(A.rows(), A.cols());
     MatrixXd L = MatrixXd::Zero(A.rows(), A.cols());
     MatrixXd U = MatrixXd::Zero(A.rows(), A.cols());
@@ -115,22 +116,26 @@ VectorXd jacobi_iteration(MatrixXd A, VectorXd b)
 
     for (int i=1;;i++) {
         VectorXd last_guess = guess_solution;
-        std::cout << "Iteration: " << i<<"  Current Solution: \n"<<last_guess.format(CleanFmt) << std::endl;
+        if (disp_guess) {
+            std::cout << "ITERATION: " << i << " " << last_guess.format(VectorRowFmt) << std::endl;
+        }
         guess_solution = T * last_guess + C;
         VectorXd delta = b - A * guess_solution;
         if (delta.norm() < 1e-9) {
             // We get the right answer
+            if (disp_guess) {
+                std::cout << "ITERATION: " << i + 1 << " " << guess_solution.format(VectorRowFmt) << std::endl;
+            }
             break;
         }
-        
     }
 
     return guess_solution;
 }
 
-VectorXd gauss_seidel(MatrixXd A, VectorXd b)
+VectorXd gauss_seidel(MatrixXd A, VectorXd b, bool disp_guess)
 {
-    Eigen::IOFormat CleanFmt(15, 0, ", ", "\n", "[", "]");
+    Eigen::IOFormat VectorRowFmt(15, 0, ", ", " ", "", "", "[", "]");
     MatrixXd D = MatrixXd::Zero(A.rows(), A.cols());
     MatrixXd L = MatrixXd::Zero(A.rows(), A.cols());
     MatrixXd U = MatrixXd::Zero(A.rows(), A.cols());
@@ -157,14 +162,20 @@ VectorXd gauss_seidel(MatrixXd A, VectorXd b)
     // First guess is ones;
     for (int i = 1;; i++) {
         VectorXd last_guess = guess_solution;
-        std::cout << "Iteration: " << i << "  Current Solution: \n" << last_guess.format(CleanFmt) << std::endl;
+        if (disp_guess) {
+            std::cout << "ITERATION: " << i << " " << last_guess.format(VectorRowFmt) << std::endl;
+        }
+        
         guess_solution = T * last_guess + C;
         VectorXd delta = b - A * guess_solution;
         if (delta.norm() < 1e-9) {
             // We get the right answer
+            if (disp_guess) {
+                std::cout << "ITERATION: " << i+1 << " " << guess_solution.format(VectorRowFmt) << std::endl;
+            }
             break;
-        }
 
+        }
     }
 
     return guess_solution;
@@ -212,6 +223,8 @@ VectorXd forward_substitution(MatrixXd A, VectorXd b) {
 void ch2_driver()
 {
     Eigen::IOFormat CleanFmt(9, 0, ", ", "\n", "[", "]");
+    Eigen::IOFormat VectorRowFmt(15, 0, ", ", " ", "", "", "[", "]");
+ 
     std::string sep = "\n----------------------------------------\n";
     VectorXd b(5, 1);
     MatrixXd A(5, 5);
@@ -226,8 +239,8 @@ void ch2_driver()
 
     VectorXd solution = gauss_eliminate(A, b);
     VectorXd delta = A * solution - b;
-    std::cout << "Solution of equation Ax=b: (Gauss Elimination)\nA =\n" << A.format(CleanFmt) << "\nb =\n" << b.format(CleanFmt) << std::endl;
-    std::cout << "Solution vector =\n" << solution.format(CleanFmt) << std::endl;
+    std::cout << "Solution of equation Ax=b: (Gauss Elimination)\nA =\n" << A.format(CleanFmt) << "\nb =\n" << b.format(VectorRowFmt) << std::endl;
+    std::cout << "Solution vector =\n" << solution.format(VectorRowFmt) << std::endl;
     std::cout << "Delta: " << delta.norm() <<sep<< std::endl;
 
     VectorXd b2(4, 1);
@@ -239,12 +252,12 @@ void ch2_driver()
     b2 << 15.1, 1.8, 16.6, 36.9;
     VectorXd solution2 = gauss_eliminate(A2, b2);
     VectorXd delta2 = A2 * solution2 - b2;
-    std::cout << "Solution of equation Ax=b: (Gauss Elimination)\nA =\n" << A2.format(CleanFmt) << "\nb =\n" << b2.format(CleanFmt) << std::endl;
-    std::cout << "Solution vector =\n" << solution2.format(CleanFmt) << std::endl;
+    std::cout << "Solution of equation Ax=b: (Gauss Elimination)\nA =\n" << A2.format(CleanFmt) << "\nb =\n" << b2.format(VectorRowFmt) << std::endl;
+    std::cout << "Solution vector =\n" << solution2.format(VectorRowFmt) << std::endl;
     std::cout << "Delta: " << delta2.norm() << sep << std::endl;
 
 
-    std::cout << "Solution  of equation Ax=b:(LU Decomposition)\nA =\n" << A.format(CleanFmt) << "\nb =\n" << b.format(CleanFmt) << std::endl;
+    std::cout << "Solution  of equation Ax=b:(LU Decomposition)\nA =\n" << A.format(CleanFmt) << "\nb =\n" << b.format(VectorRowFmt) << std::endl;
     MatrixXd l = MatrixXd::Identity(5, 5);
     MatrixXd u = MatrixXd::Identity(5, 5);
     lu(A, l, u);
@@ -253,11 +266,11 @@ void ch2_driver()
     delta = A * x - b;
     std::cout << "L = \n" << l.format(CleanFmt) << std::endl;
     std::cout << "U = \n" << u.format(CleanFmt) << std::endl;
-    std::cout << "Solution vector =\n" << x.format(CleanFmt) << std::endl;
+    std::cout << "Solution vector =\n" << x.format(VectorRowFmt) << std::endl;
     std::cout << "Delta: " << delta.norm() << sep << std::endl;
 
 
-    std::cout << "Solution  of equation Ax=b:(LU Decomposition)\nA =\n" << A2.format(CleanFmt) << "\nb =\n" << b2.format(CleanFmt) << std::endl;
+    std::cout << "Solution  of equation Ax=b:(LU Decomposition)\nA =\n" << A2.format(CleanFmt) << "\nb =\n" << b2.format(VectorRowFmt) << std::endl;
     MatrixXd l2 = MatrixXd::Identity(4, 4);
     MatrixXd u2 = MatrixXd::Identity(4, 4);
     lu(A2, l2, u2);
@@ -266,7 +279,7 @@ void ch2_driver()
     delta2 = A2 * x2 - b2;
     std::cout << "L = \n" << l2.format(CleanFmt) << std::endl;
     std::cout << "U = \n" << u2.format(CleanFmt) << std::endl;
-    std::cout << "Solution vector =\n" << x2.format(CleanFmt) << std::endl;
+    std::cout << "Solution vector =\n" << x2.format(VectorRowFmt) << std::endl;
     std::cout << "Delta: " << delta2.norm() << sep << std::endl;
 
 
@@ -278,10 +291,17 @@ void ch2_driver()
         5.6, 0.9, 8.1, -1.3,
         1.5, 0.4, 3.7, 5.9;
     b2 << 15.1, 1.8, 16.6, 36.9;*/
-    solution2 = gauss_seidel(A2, b2);
+    std::cout << "Solution of equation Ax=b: (Jacobi Iteration)\nA =\n" << A2.format(CleanFmt) << "\nb =\n" << b2.format(VectorRowFmt) << std::endl;
+    solution2 = jacobi_iteration(A2, b2, true);
     delta2 = A2 * solution2 - b2;
-    std::cout << "Solution of equation Ax=b: (Jacobi Iteration)\nA =\n" << A2.format(CleanFmt) << "\nb =\n" << b2.format(CleanFmt) << std::endl;
-    std::cout << "Solution vector =\n" << solution2.format(CleanFmt) << std::endl;
+    std::cout << "Solution vector =\n" << solution2.format(VectorRowFmt) << std::endl;
     std::cout << "Delta: " << delta2.norm() << sep << std::endl;
 
+
+
+    std::cout << "Solution of equation Ax=b: (Gauss_Seidel Iteration)\nA =\n" << A2.format(CleanFmt) << "\nb =\n" << b2.format(VectorRowFmt) << std::endl;
+    solution2 = gauss_seidel(A2, b2, true);
+    delta2 = A2 * solution2 - b2;
+    std::cout << "Solution vector =\n" << solution2.format(VectorRowFmt) << std::endl;
+    std::cout << "Delta: " << delta2.norm() << sep << std::endl;
 }
